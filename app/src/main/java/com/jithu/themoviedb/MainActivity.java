@@ -4,6 +4,9 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -22,6 +25,9 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+        private static String POPULAR="popular";
+        private static String TOPRATED="top_rated";
+
         private TextView mMoviesTextView;
         private ArrayList<Movie> movies ;
         private GridView listOfMovies;
@@ -32,14 +38,35 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
 
            // mMoviesTextView =(TextView) findViewById(R.id.mMovieTextView) ;
-            loadMovieData();
+            loadMovieData(POPULAR);
 
         }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.settings_menu, menu);
+        return true;
+    }
 
-    private void loadMovieData(){
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.sort_most_popular:
+                loadMovieData(POPULAR);
+                return true;
+            case R.id.sort_top_rated:
+                loadMovieData(TOPRATED);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-        String apiKey ="lskdjfdlkjf";
-        new FetchMoviesTask().execute(apiKey);
+    private void loadMovieData(String sortOption){
+
+        String apiKey ="";
+        new FetchMoviesTask().execute(apiKey,sortOption);
     }
 
     public class FetchMoviesTask extends AsyncTask<String,Void,String>{
@@ -52,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             String apiKey = params[0];
-            URL movieRequestUrl = NetworkUtils.buildUrl(apiKey);
+            String sortOption=params[1];
+            URL movieRequestUrl = NetworkUtils.buildUrl(apiKey,sortOption);
 
 
             try {

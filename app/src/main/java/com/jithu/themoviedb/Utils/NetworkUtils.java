@@ -31,13 +31,8 @@ import java.util.Scanner;
 public final class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
-
-
-
-    private static final String STATIC_MOVIE_URL =
-            "http://api.themoviedb.org/3/movie/popular?api_key=";
-
-    private static final String MOVIE_BASE_URL = STATIC_MOVIE_URL;
+    private static final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/";
+    private static final String API_KEY_PARAM = "api_key";
 
     /*
      * NOTE: These values only effect responses from OpenWeatherMap, NOT from the fake weather
@@ -49,9 +44,11 @@ public final class NetworkUtils {
 
 
 
-    public static URL buildUrl(String apiKey) {
+    public static URL buildUrl(String apiKey, String sortOption) {
         // COMPLETED (1) Fix this method to return the URL used to query Open Weather Map's API
-        Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon().build();
+        String uri=MOVIE_BASE_URL+sortOption;
+        Uri builtUri = Uri.parse(uri).buildUpon().appendQueryParameter(API_KEY_PARAM,apiKey).build();
+
 
         Log.e(TAG,apiKey);
 
