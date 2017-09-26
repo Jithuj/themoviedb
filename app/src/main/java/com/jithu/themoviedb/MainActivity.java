@@ -3,6 +3,9 @@ package com.jithu.themoviedb;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,7 +15,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.jithu.themoviedb.Data.Movie;
@@ -23,26 +28,41 @@ import com.squareup.picasso.Picasso;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ListOfMoviesAdapter.ListOfMoviesOnClickHandler {
 
-        private static String POPULAR="popular";
-        private static String TOPRATED="top_rated";
+    private static String POPULAR = "popular";
+    private static String TOPRATED = "top_rated";
+    private ArrayList<Movie> movies;
+    private GridView listOfMovies;
 
-        private TextView mMoviesTextView;
-        private ArrayList<Movie> movies ;
-        private GridView listOfMovies;
+    private RecyclerView mRecyclerView;
+    private com.jithu.themoviedb.ListOfMoviesAdapter mMovieListAdapter;
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
+    /* private TextView mErrorMessageDisplay;
 
+     private ProgressBar mLoadingIndicator;*/
+    private Toast mToast;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_movies);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);
+        loadMovieData(POPULAR);
+        mMovieListAdapter = new ListOfMoviesAdapter(movies, this);
+        mRecyclerView.setAdapter(mMovieListAdapter);
            // mMoviesTextView =(TextView) findViewById(R.id.mMovieTextView) ;
-            loadMovieData(POPULAR);
+
 
         }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.settings_menu, menu);
         return true;
@@ -67,6 +87,13 @@ public class MainActivity extends AppCompatActivity {
 
         String apiKey ="";
         new FetchMoviesTask().execute(apiKey,sortOption);
+    }
+
+    @Override
+    public void onClick(String moveName) {
+        String toastMessage = "movie Name - " + moveName;
+        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+        mToast.show();
     }
 
     public class FetchMoviesTask extends AsyncTask<String,Void,String>{
@@ -99,16 +126,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String movieData){
-
+            //mLoadingIndicator.setVisibility(View.INVISIBLE);
             if(movieData!=null){
-                //get object
-                //append to grid view
-                //mMoviesTextView.append(movieData);
                 ResponseJson moviesResponse = new Gson().fromJson(movieData, ResponseJson.class);
                 movies=moviesResponse.getResults();
-                //mMoviesTextView.append(moviesResponse.getResults().size()+"");
-                listOfMovies = (GridView) findViewById(R.id.listOfMovies);
-                listOfMovies.setAdapter(new ListOfMoviesAdapter());
+                Log.e("MainActivity", "hit movies - " + movies);
+                mMovieListAdapter.setMoviesData(movies);
+
 
             }
         }
@@ -116,52 +140,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    class ViewHolder{
-        ImageView posterImage;
 
-    }
-
-        class ListOfMoviesAdapter extends BaseAdapter {
-
-            private LayoutInflater layoutInflater;
-            public ListOfMoviesAdapter(){
-
-                layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-            }
-
-            @Override
-            public int getCount() {
-                return movies.size();
-            }
-
-            @Override
-            public Object getItem(int position) {
-                return null;
-            }
-
-            @Override
-            public long getItemId(int position) {
-                return 0;
-            }
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-
-
-                if(convertView==null){
-                    convertView= layoutInflater.inflate(R.layout.cell_poster,null);
-
-                    ViewHolder viewHolder =new ViewHolder();
-                    viewHolder.posterImage = (ImageView) convertView.findViewById(R.id.posterImage);
-                    convertView.setTag(viewHolder);
-                }
-
-                ViewHolder viewHolder =(ViewHolder) convertView.getTag();
-
-                Movie movie = movies.get(position);
-                //viewHolder.posterURL.setText(movie.getPoster_path());
-                Picasso.with(getApplicationContext()).load("http://image.tmdb.org/t/p/w185/"+movie.getPoster_path()).into(viewHolder.posterImage);
-                return convertView;
-            }
-        }
 }
