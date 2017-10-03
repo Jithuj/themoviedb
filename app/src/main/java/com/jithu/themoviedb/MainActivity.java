@@ -1,5 +1,7 @@
 package com.jithu.themoviedb;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -85,15 +87,21 @@ public class MainActivity extends AppCompatActivity implements ListOfMoviesAdapt
 
     private void loadMovieData(String sortOption){
 
-        String apiKey ="";
+        String apiKey = "19369bd50ed61d9cffa106363825a2c8";
         new FetchMoviesTask().execute(apiKey,sortOption);
     }
 
     @Override
-    public void onClick(String moveName) {
-        String toastMessage = "movie Name - " + moveName;
-        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
-        mToast.show();
+    public void onClick(Movie movie) {
+        //String toastMessage = "movie Name - " + moveName;
+        //mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+        //mToast.show();
+        Context context = this;
+        Class destinationClass = MovieDetailActivity.class;
+        Intent intentToStartDetailActivity = new Intent(context, destinationClass);
+        // COMPLETED (1) Pass the weather to the DetailActivity
+        intentToStartDetailActivity.putExtra("movie", movie);
+        startActivity(intentToStartDetailActivity);
     }
 
     public class FetchMoviesTask extends AsyncTask<String,Void,String>{

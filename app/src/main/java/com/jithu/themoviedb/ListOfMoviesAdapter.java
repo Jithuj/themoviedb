@@ -58,7 +58,7 @@ public class ListOfMoviesAdapter extends RecyclerView.Adapter<ListOfMoviesAdapte
     }
 
     public interface ListOfMoviesOnClickHandler {
-        void onClick(String moveName);
+        void onClick(Movie movie);
     }
 
     public class ListOfMoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -73,8 +73,8 @@ public class ListOfMoviesAdapter extends RecyclerView.Adapter<ListOfMoviesAdapte
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String moveName = mMovies.get(adapterPosition).getTitle();
-            mClickHandler.onClick(moveName);
+            Movie movie = mMovies.get(adapterPosition);
+            mClickHandler.onClick(movie);
         }
     }
 }
